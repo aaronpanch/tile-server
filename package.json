@@ -1,0 +1,21 @@
+{
+  "name": "tile-server",
+  "version": "1.0.0",
+  "description": "A lightweight server for MapBox Tiles",
+  "main": "app.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/aaronpanch/tile-server.git"
+  },
+  "author": "Aaron Panchal",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/aaronpanch/tile-server/issues"
+  },
+  "homepage": "https://github.com/aaronpanch/tile-server#readme",
+  "dependencies": {
+    "koa": "^1.2.1",
+    "koa-logger": "^1.3.0",
+    "koa-route": "^2.4.2"
+  }
+}
