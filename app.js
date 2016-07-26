@@ -5,16 +5,24 @@ const koa = require('koa')
 
 const app = koa();
 
-app.use(require('koa-logger')());
+if (app.env === 'development') {
+  app.use(require('koa-logger')());
+}
 
 app.use(route.get('/', function *() {
   this.body = 'hi!'
 }));
 
 co(function *() {
-  const db = yield MongoClient.connect('mongodb://localhost:27017/vacancies-dev');
+  const dbENV = 'MONGODB_URI'
+      , dbURI = process.env[dbENV]
+      , port = process.env.PORT || 3000;
+
+  if (!dbURI) { throw `Missing ${dbENV} env variable!` }
+
+  const db = yield MongoClient.connect(dbURI);
   app.context.db = db;
 
-  app.listen(3000);
-  console.log('Tile Server listening on port 3000');
+  app.listen(port);
+  console.log(`Tile Server listening on port ${port}`);
 }).catch(err => { console.log(err); });
