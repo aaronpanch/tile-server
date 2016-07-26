@@ -6,9 +6,11 @@ const koa = require('koa')
     , buildClusterIndex = require('./lib/buildClusterIndex')
     , MongoClient = require('mongodb').MongoClient;
 
+
 const app = koa();
 
-if (app.env === 'development') {
+const debug = app.env === 'development';
+if (debug) {
   app.use(require('koa-logger')());
 }
 
@@ -27,7 +29,9 @@ app.use(route.get('/:resource', function *(resource) {
 
     if (!tileCache[cacheKey]) {
       let coll = yield feature.getCollection(this.db);
+      if (debug) { console.time('buildIndex') }
       tileCache[cacheKey] = buildClusterIndex(coll);
+      if (debug) { console.timeEnd('buildIndex') }
     }
 
     this.body = {

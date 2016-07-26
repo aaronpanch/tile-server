@@ -1,7 +1,8 @@
-const co = require('co');
+const co = require('co'),
+      debug = process.env.NODE_ENV === 'development';
 
 function transformData(data) {
-  if (process.env.DEBUG) { console.time('transform'); }
+  if (debug) { console.time('transform'); }
 
   const collection = {
     type: 'FeatureCollection',
@@ -16,21 +17,21 @@ function transformData(data) {
     })
   }
 
-  if (process.env.DEBUG) { console.timeEnd('transform'); }
+  if (debug) { console.timeEnd('transform'); }
 
   return collection;
 }
 
 function getCollection(db, query) {
   return co(function *() {
-    if (process.env.DEBUG) { console.time('database'); }
+    if (debug) { console.time('database'); }
 
     const rentals = yield db.collection('rentals')
       .find(Object.assign({ location: { $exists: 1 } }))
       .project({ location: 1, listable_uid: 1 })
       .toArray();
 
-    if (process.env.DEBUG) { console.timeEnd('database'); }
+    if (debug) { console.timeEnd('database'); }
 
     return transformData(rentals);
   });
