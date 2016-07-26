@@ -1,6 +1,9 @@
 const koa = require('koa')
     , co = require('co')
     , route = require('koa-route')
+    , qs = require('qs')
+    , features = require('./features')
+    , buildClusterIndex = require('./lib/buildClusterIndex')
     , MongoClient = require('mongodb').MongoClient;
 
 const app = koa();
@@ -9,8 +12,30 @@ if (app.env === 'development') {
   app.use(require('koa-logger')());
 }
 
-app.use(route.get('/', function *() {
-  this.body = 'hi!'
+app.use(function *(next) {
+  this.set('Access-Control-Allow-Origin', '*');
+  yield next;
+});
+
+let tileCache = {};
+
+app.use(route.get('/:resource', function *(resource) {
+  let feature = features[resource];
+
+  if (feature) {
+    const cacheKey = this.querystring || 'all';
+
+    if (!tileCache[cacheKey]) {
+      let coll = yield feature.getCollection(this.db);
+      tileCache[cacheKey] = buildClusterIndex(coll);
+    }
+
+    this.body = {
+      tilejson: "2.1.0"
+    }
+  } else {
+    this.status = 404;
+  }
 }));
 
 co(function *() {
@@ -19,7 +44,6 @@ co(function *() {
       , port = process.env.PORT || 3000;
 
   if (!dbURI) { throw `Missing ${dbENV} env variable!` }
-
   const db = yield MongoClient.connect(dbURI);
   app.context.db = db;
 
