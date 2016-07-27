@@ -52,6 +52,11 @@ app.use(route.get('/:resource', function *(resource) {
 app.use(route.get('/:resource/:z/:x/:y', function *(resource, z, x, y) {
   let tileIndex = tileCache[this.querystring || 'all'];
 
+  if (!tileIndex) {
+    this.status = 404;
+    return;
+  }
+
   let tile = tileIndex.getTile(Number(z), Number(x), Number(y));
   if (!tile) {
     tile = { features: [] }
