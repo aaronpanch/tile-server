@@ -1,17 +1,20 @@
-const co = require('co'),
-      debug = process.env.NODE_ENV === 'development';
+const co = require('co')
+    , debug = process.env.NODE_ENV === 'development'
+    , request = require('request-promise');
 
 function transformData(data) {
   if (debug) { console.time('transform'); }
-
   const collection = {
     type: 'FeatureCollection',
-    features: data.map(rental => {
+    features: data.filter(rental => (rental.lat && rental.lng)).map(rental => {
       return {
         type: 'Feature',
-        geometry: rental.location,
+        geometry: {
+          type: 'Point',
+          coordinates: [ rental.lng, rental.lat ]
+        },
         properties: {
-          id: rental.listable_uid
+          id: rental.id
         }
       }
     })
@@ -24,16 +27,13 @@ function transformData(data) {
 
 function getCollection(db, query) {
   return co(function *() {
-    if (debug) { console.time('database'); }
+    if (debug) { console.time('vacancies'); }
 
-    const rentals = yield db.collection('rentals')
-      .find(Object.assign({ location: { $exists: 1 } }))
-      .project({ location: 1, listable_uid: 1 })
-      .toArray();
+    const rentals = yield request.get('http://localhost:9292/rentals?api_version=1&per_page=0&view=marker');
 
-    if (debug) { console.timeEnd('database'); }
+    if (debug) { console.timeEnd('vacancies'); }
 
-    return transformData(rentals);
+    return transformData(JSON.parse(rentals));
   });
 }
 
