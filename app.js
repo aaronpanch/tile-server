@@ -66,12 +66,12 @@ app.use(route.get('/:resource/:z/:x/:y', function *(resource, z, x, y) {
 }));
 
 co(function *() {
-  const dbENV = 'MONGODB_URI'
-      , dbURI = process.env[dbENV];
+  // const dbENV = 'MONGODB_URI'
+  //     , dbURI = process.env[dbENV];
 
-  if (!dbURI) { throw `Missing ${dbENV} env variable!` }
-  const db = yield MongoClient.connect(dbURI);
-  app.context.db = db;
+  // if (!dbURI) { throw `Missing ${dbENV} env variable!` }
+  // const db = yield MongoClient.connect(dbURI);
+  // app.context.db = db;
 
   app.listen(PORT);
   console.log(`Tile Server listening on port ${PORT}`);
