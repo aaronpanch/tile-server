@@ -32,7 +32,7 @@ app.use(route.get('/:resource', function *(resource) {
     const cacheKey = this.querystring || 'all';
 
     if (!tileCache[cacheKey]) {
-      let coll = yield feature.getCollection(this.db);
+      let coll = yield feature.getCollection(this.db, this.querystring);
       if (debug) { console.time('buildIndex') }
       tileCache[cacheKey] = buildClusterIndex(coll);
       if (debug) { console.timeEnd('buildIndex') }
@@ -41,7 +41,7 @@ app.use(route.get('/:resource', function *(resource) {
     this.body = {
       tilejson: '2.1.0',
       tiles: [
-        `${HOST_URL}/${resource}/{z}/{x}/{y}${this.querystring}`
+        `${HOST_URL}/${resource}/{z}/{x}/{y}?${this.querystring}`
       ]
     }
   } else {

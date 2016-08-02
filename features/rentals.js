@@ -29,7 +29,7 @@ function getCollection(db, query) {
   return co(function *() {
     if (debug) { console.time('vacancies'); }
 
-    const rentals = yield request.get('http://localhost:9292/rentals?api_version=1&per_page=0&view=marker');
+    const rentals = yield request.get(`${process.env.VACANCIES_HOST}/rentals?api_version=1&per_page=0&view=marker&${query}`);
 
     if (debug) { console.timeEnd('vacancies'); }
 
